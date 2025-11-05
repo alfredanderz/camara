@@ -61,6 +61,39 @@ h1 {
   box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
 }
 
+.btn.switch {
+  background: #ff9800;
+  color: white;
+}
+
+.btn.switch:hover {
+  background: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+}
+
+.btn.success {
+  background: #4caf50;
+  color: white;
+}
+
+.btn.success:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.btn.warning {
+  background: #ffeb3b;
+  color: #333;
+}
+
+.btn.warning:hover {
+  background: #fdd835;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255, 235, 59, 0.4);
+}
+
 .btn:disabled {
   background: #cccccc;
   cursor: not-allowed;
@@ -73,6 +106,13 @@ h1 {
   display: none;
 }
 
+.camera-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
 #video {
   width: 100%;
   max-width: 320px;
@@ -80,6 +120,40 @@ h1 {
   border-radius: 10px;
   border: 3px solid #333;
   background: #000;
+  transform: scaleX(1); /* Para efecto espejo en cámara frontal */
+}
+
+.photo-container {
+  margin: 20px 0;
+  display: none;
+}
+
+.photo-container h3 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+#photoResult {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  border-radius: 10px;
+  border: 3px solid #333;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.photo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.current-camera {
+  color: #666;
+  font-size: 14px;
+  margin-top: 10px;
+  font-style: italic;
 }
 
 @media (max-width: 480px) {
@@ -95,5 +169,13 @@ h1 {
   .btn {
     width: 100%;
     margin: 5px 0;
+  }
+
+  .camera-controls {
+    flex-direction: column;
+  }
+
+  .photo-actions {
+    flex-direction: column;
   }
 }

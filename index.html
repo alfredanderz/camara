@@ -10,13 +10,27 @@
   </head>
   <body>
     <div class="container">
-      <h1>Mi Cámara PWA</h1>
+      <h1>📷 Mi Cámara PWA</h1>
 
       <button id="openCamera" class="btn primary">Abrir Cámara</button>
 
       <div id="cameraContainer" class="camera-container">
         <video id="video" autoplay playsinline></video>
-        <button id="takePhoto" class="btn secondary">Tomar Foto</button>
+        <div class="camera-controls">
+          <button id="switchCamera" class="btn switch">
+            🔄 Cambiar Cámara
+          </button>
+          <button id="takePhoto" class="btn secondary">📸 Tomar Foto</button>
+        </div>
+      </div>
+
+      <div id="photoContainer" class="photo-container">
+        <h3>Foto Tomada:</h3>
+        <img id="photoResult" src="" alt="Foto capturada" />
+        <div class="photo-actions">
+          <button id="savePhoto" class="btn success">💾 Guardar Foto</button>
+          <button id="retakePhoto" class="btn warning">🔄 Tomar Otra</button>
+        </div>
       </div>
 
       <canvas id="canvas" style="display: none"></canvas>
