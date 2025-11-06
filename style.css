@@ -5,60 +5,69 @@
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 20px;
 }
 
 .container {
-  max-width: 400px;
-  margin: 0 auto;
-  text-align: center;
+  max-width: 800px;
+  width: 100%;
   background: white;
-  border-radius: 15px;
+  border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
 h1 {
+  text-align: center;
   color: #333;
   margin-bottom: 30px;
-  font-size: 24px;
+  font-size: 28px;
 }
 
+/* Botones */
 .btn {
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
-  border-radius: 25px;
+  border-radius: 8px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.3s ease;
-  margin: 10px;
-  min-width: 150px;
+  transition: all 0.3s;
+  display: block;
+  width: 100%;
+  margin-bottom: 15px;
 }
 
 .btn.primary {
-  background: #4caf50;
+  background: #667eea;
   color: white;
 }
 
 .btn.primary:hover {
-  background: #45a049;
+  background: #5568d3;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn.primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .btn.secondary {
-  background: #2196f3;
+  background: #4caf50;
   color: white;
 }
 
 .btn.secondary:hover {
-  background: #1976d2;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.4);
+  background: #45a049;
 }
 
 .btn.switch {
@@ -67,9 +76,7 @@ h1 {
 }
 
 .btn.switch:hover {
-  background: #f57c00;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 152, 0, 0.4);
+  background: #e68900;
 }
 
 .btn.success {
@@ -79,103 +86,95 @@ h1 {
 
 .btn.success:hover {
   background: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
 }
 
 .btn.warning {
-  background: #ffeb3b;
-  color: #333;
+  background: #ff5722;
+  color: white;
 }
 
 .btn.warning:hover {
-  background: #fdd835;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(255, 235, 59, 0.4);
+  background: #e64a19;
 }
 
-.btn:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
+/* Contenedor de cámara */
 .camera-container {
-  margin: 20px 0;
   display: none;
+  margin-top: 20px;
+}
+
+.current-camera {
+  background: #333;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  border-radius: 8px 8px 0 0;
+  font-weight: bold;
+}
+
+video {
+  width: 100%;
+  height: auto;
+  border-radius: 0 0 8px 8px;
+  background: #000;
+  display: block;
+  object-fit: contain;
 }
 
 .camera-controls {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 15px;
 }
 
-#video {
-  width: 100%;
-  max-width: 320px;
-  height: 240px;
-  border-radius: 10px;
-  border: 3px solid #333;
-  background: #000;
-  transform: scaleX(1); /* Para efecto espejo en cámara frontal */
-}
-
+/* Contenedor de foto */
 .photo-container {
-  margin: 20px 0;
   display: none;
+  margin-top: 20px;
 }
 
 .photo-container h3 {
   color: #333;
   margin-bottom: 15px;
+  text-align: center;
 }
 
 #photoResult {
   width: 100%;
-  max-width: 320px;
   height: auto;
-  border-radius: 10px;
-  border: 3px solid #333;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: block;
+  object-fit: contain;
+  max-height: 600px;
+  margin: 0 auto;
 }
 
 .photo-actions {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 20px;
 }
 
-.current-camera {
-  color: #666;
-  font-size: 14px;
-  margin-top: 10px;
-  font-style: italic;
-}
-
-@media (max-width: 480px) {
+/* Responsivo */
+@media (max-width: 600px) {
   .container {
-    margin: 10px;
     padding: 20px;
   }
 
   h1 {
-    font-size: 20px;
+    font-size: 22px;
   }
 
   .btn {
-    width: 100%;
-    margin: 5px 0;
+    padding: 12px 20px;
+    font-size: 14px;
   }
 
-  .camera-controls {
-    flex-direction: column;
-  }
-
+  .camera-controls,
   .photo-actions {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 }

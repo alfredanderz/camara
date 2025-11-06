@@ -15,18 +15,14 @@ let stream = null;
 let currentFacingMode = "environment"; // 'environment' (trasera) o 'user' (frontal)
 let currentImageDataURL = null;
 
-// Configurar canvas con dimensiones
-canvas.width = 640;
-canvas.height = 480;
-
 // Función para abrir la cámara
 async function openCamera() {
   try {
     const constraints = {
       video: {
         facingMode: { ideal: currentFacingMode },
-        width: { ideal: 640 },
-        height: { ideal: 480 },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
       },
     };
 
@@ -37,6 +33,14 @@ async function openCamera() {
 
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
+
+    // Esperar a que el video cargue sus metadatos
+    await new Promise((resolve) => {
+      video.onloadedmetadata = () => {
+        video.play();
+        resolve();
+      };
+    });
 
     // Aplicar efecto espejo para cámara frontal
     if (currentFacingMode === "user") {
@@ -89,7 +93,7 @@ function updateCameraIndicator() {
   const indicator = document.createElement("div");
   indicator.className = "current-camera";
   indicator.textContent = `Cámara: ${cameraType}`;
-  cameraContainer.appendChild(indicator);
+  cameraContainer.insertBefore(indicator, cameraContainer.firstChild);
 }
 
 // Función para tomar foto
@@ -99,11 +103,16 @@ function takePhoto() {
     return;
   }
 
-  // Ajustar canvas al tamaño del video
+  // Obtener dimensiones reales del video
   const videoWidth = video.videoWidth;
   const videoHeight = video.videoHeight;
+
+  // Ajustar canvas al tamaño REAL del video
   canvas.width = videoWidth;
   canvas.height = videoHeight;
+
+  // Limpiar canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Dibujar el frame actual del video en el canvas
   if (currentFacingMode === "user") {
@@ -117,20 +126,25 @@ function takePhoto() {
     ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
   }
 
-  // Convertir canvas a data URL (imagen)
-  currentImageDataURL = canvas.toDataURL("image/png");
+  // Convertir canvas a data URL (imagen de alta calidad)
+  currentImageDataURL = canvas.toDataURL("image/jpeg", 0.95);
 
   // Mostrar la foto en pantalla
   showPhoto(currentImageDataURL);
 
-  console.log("Foto capturada y mostrada");
+  console.log(`Foto capturada: ${videoWidth}x${videoHeight}`);
 }
 
 // Función para mostrar la foto en pantalla
 function showPhoto(imageDataURL) {
   photoResult.src = imageDataURL;
+  photoResult.onload = () => {
+    console.log("Foto mostrada correctamente");
+  };
   photoContainer.style.display = "block";
   cameraContainer.style.display = "none";
+  openCameraBtn.textContent = "Abrir Cámara";
+  openCameraBtn.disabled = false;
 }
 
 // Función para guardar la foto
@@ -145,9 +159,11 @@ function savePhoto() {
   const cameraType =
     currentFacingMode === "environment" ? "trasera" : "frontal";
 
-  link.download = `foto-${cameraType}-${timestamp}.png`;
+  link.download = `foto-${cameraType}-${timestamp}.jpg`;
   link.href = currentImageDataURL;
+  document.body.appendChild(link);
   link.click();
+  document.body.removeChild(link);
 
   alert("✅ Foto guardada correctamente");
   console.log("Foto guardada:", link.download);
@@ -156,8 +172,8 @@ function savePhoto() {
 // Función para tomar otra foto
 function retakePhoto() {
   photoContainer.style.display = "none";
-  cameraContainer.style.display = "block";
   currentImageDataURL = null;
+  openCamera();
 }
 
 // Función para cerrar la cámara
@@ -169,10 +185,8 @@ function closeCamera() {
     // Restaurar interfaz
     video.srcObject = null;
     cameraContainer.style.display = "none";
-    photoContainer.style.display = "none";
     openCameraBtn.textContent = "Abrir Cámara";
     openCameraBtn.disabled = false;
-    currentImageDataURL = null;
 
     console.log("Cámara cerrada");
   }
@@ -202,6 +216,8 @@ async function checkCameras() {
       // Ocultar botón de cambiar cámara si solo hay una
       switchCameraBtn.style.display = "none";
     }
+
+    console.log(`${videoDevices.length} cámara(s) detectada(s)`);
   } catch (error) {
     console.log("No se pudieron enumerar los dispositivos:", error);
   }
