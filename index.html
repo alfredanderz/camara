@@ -39,16 +39,30 @@
         </div>
       </div>
 
-      <div id="photoContainer" class="photo-container">
-        <h3>Foto Tomada:</h3>
-        <img id="photoResult" src="" alt="Foto capturada" />
-        <div class="photo-actions">
-          <button id="savePhoto" class="btn success">💾 Guardar Foto</button>
-          <button id="retakePhoto" class="btn warning">🔄 Tomar Otra</button>
+      <!-- Galería horizontal de fotos -->
+      <div id="galleryContainer" class="gallery-container">
+        <div class="gallery-header">
+          <h3>📸 Mis Fotos (<span id="photoCount">0</span>)</h3>
+          <button id="clearAllPhotos" class="btn-clear">🗑️ Borrar Todas</button>
+        </div>
+        <div id="photoGallery" class="photo-gallery">
+          <!-- Las fotos se insertarán aquí dinámicamente -->
         </div>
       </div>
 
       <canvas id="canvas" style="display: none"></canvas>
+    </div>
+
+    <!-- Modal para ver foto en grande -->
+    <div id="photoModal" class="photo-modal">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <img id="modalImage" src="" alt="Foto en grande" />
+        <div class="modal-actions">
+          <button id="savePhotoModal" class="btn success">💾 Guardar</button>
+          <button id="deletePhotoModal" class="btn warning">🗑️ Eliminar</button>
+        </div>
+      </div>
     </div>
 
     <script src="./app.js"></script>

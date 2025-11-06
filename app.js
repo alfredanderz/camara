@@ -4,16 +4,26 @@ const cameraContainer = document.getElementById("cameraContainer");
 const video = document.getElementById("video");
 const takePhotoBtn = document.getElementById("takePhoto");
 const switchCameraBtn = document.getElementById("switchCamera");
-const photoContainer = document.getElementById("photoContainer");
-const photoResult = document.getElementById("photoResult");
-const savePhotoBtn = document.getElementById("savePhoto");
-const retakePhotoBtn = document.getElementById("retakePhoto");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
+// Elementos de la galería
+const galleryContainer = document.getElementById("galleryContainer");
+const photoGallery = document.getElementById("photoGallery");
+const photoCount = document.getElementById("photoCount");
+const clearAllPhotos = document.getElementById("clearAllPhotos");
+
+// Modal
+const photoModal = document.getElementById("photoModal");
+const modalImage = document.getElementById("modalImage");
+const closeModal = document.querySelector(".close-modal");
+const savePhotoModal = document.getElementById("savePhotoModal");
+const deletePhotoModal = document.getElementById("deletePhotoModal");
+
 let stream = null;
 let currentFacingMode = "environment"; // 'environment' (trasera) o 'user' (frontal)
-let currentImageDataURL = null;
+let photos = []; // Array para almacenar las fotos
+let currentPhotoIndex = null; // Índice de la foto actual en el modal
 
 // Función para abrir la cámara
 async function openCamera() {
@@ -127,54 +137,185 @@ function takePhoto() {
   }
 
   // Convertir canvas a data URL (imagen de alta calidad)
-  currentImageDataURL = canvas.toDataURL("image/jpeg", 0.95);
+  const imageDataURL = canvas.toDataURL("image/jpeg", 0.95);
 
-  // Mostrar la foto en pantalla
-  showPhoto(currentImageDataURL);
+  // Agregar foto a la galería
+  addPhotoToGallery(imageDataURL, videoWidth, videoHeight);
 
   console.log(`Foto capturada: ${videoWidth}x${videoHeight}`);
 }
 
-// Función para mostrar la foto en pantalla
-function showPhoto(imageDataURL) {
-  photoResult.src = imageDataURL;
-  photoResult.onload = () => {
-    console.log("Foto mostrada correctamente");
+// Función para agregar foto a la galería
+function addPhotoToGallery(imageDataURL, width, height) {
+  const timestamp = new Date();
+  const cameraType =
+    currentFacingMode === "environment" ? "Trasera" : "Frontal";
+
+  // Crear objeto de foto
+  const photo = {
+    dataURL: imageDataURL,
+    timestamp: timestamp,
+    cameraType: cameraType,
+    width: width,
+    height: height,
   };
-  photoContainer.style.display = "block";
-  cameraContainer.style.display = "none";
-  openCameraBtn.textContent = "Abrir Cámara";
-  openCameraBtn.disabled = false;
+
+  // Agregar al inicio del array
+  photos.unshift(photo);
+
+  // Renderizar galería
+  renderGallery();
+
+  // Mostrar notificación
+  showNotification("📸 Foto capturada");
 }
 
-// Función para guardar la foto
-function savePhoto() {
-  if (!currentImageDataURL) {
-    alert("No hay foto para guardar");
+// Función para renderizar la galería
+function renderGallery() {
+  // Limpiar galería
+  photoGallery.innerHTML = "";
+
+  // Si no hay fotos, ocultar contenedor
+  if (photos.length === 0) {
+    galleryContainer.classList.remove("active");
     return;
   }
 
-  const link = document.createElement("a");
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const cameraType =
-    currentFacingMode === "environment" ? "trasera" : "frontal";
+  // Mostrar contenedor de galería
+  galleryContainer.classList.add("active");
 
-  link.download = `foto-${cameraType}-${timestamp}.jpg`;
-  link.href = currentImageDataURL;
+  // Actualizar contador
+  photoCount.textContent = photos.length;
+
+  // Crear elementos de foto
+  photos.forEach((photo, index) => {
+    const photoItem = document.createElement("div");
+    photoItem.className = "photo-item";
+
+    const img = document.createElement("img");
+    img.src = photo.dataURL;
+    img.alt = `Foto ${index + 1}`;
+
+    const info = document.createElement("div");
+    info.className = "photo-info";
+    info.textContent = `${photo.cameraType} - ${formatTime(photo.timestamp)}`;
+
+    photoItem.appendChild(img);
+    photoItem.appendChild(info);
+
+    // Click para abrir modal
+    photoItem.addEventListener("click", () => {
+      openPhotoModal(index);
+    });
+
+    photoGallery.appendChild(photoItem);
+  });
+
+  // Scroll al inicio (última foto tomada)
+  photoGallery.scrollLeft = 0;
+}
+
+// Función para formatear tiempo
+function formatTime(date) {
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+// Función para abrir modal de foto
+function openPhotoModal(index) {
+  currentPhotoIndex = index;
+  const photo = photos[index];
+  modalImage.src = photo.dataURL;
+  photoModal.classList.add("active");
+}
+
+// Función para cerrar modal
+function closePhotoModal() {
+  photoModal.classList.remove("active");
+  currentPhotoIndex = null;
+}
+
+// Función para guardar foto desde modal
+function savePhotoFromModal() {
+  if (currentPhotoIndex === null) return;
+
+  const photo = photos[currentPhotoIndex];
+  const link = document.createElement("a");
+  const timestamp = photo.timestamp.toISOString().replace(/[:.]/g, "-");
+
+  link.download = `foto-${photo.cameraType.toLowerCase()}-${timestamp}.jpg`;
+  link.href = photo.dataURL;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 
-  alert("✅ Foto guardada correctamente");
+  showNotification("✅ Foto guardada");
   console.log("Foto guardada:", link.download);
 }
 
-// Función para tomar otra foto
-function retakePhoto() {
-  photoContainer.style.display = "none";
-  currentImageDataURL = null;
-  openCamera();
+// Función para eliminar foto
+function deletePhoto() {
+  if (currentPhotoIndex === null) return;
+
+  if (confirm("¿Eliminar esta foto?")) {
+    photos.splice(currentPhotoIndex, 1);
+    renderGallery();
+    closePhotoModal();
+    showNotification("🗑️ Foto eliminada");
+  }
 }
+
+// Función para eliminar todas las fotos
+function clearAllPhotosFunc() {
+  if (photos.length === 0) return;
+
+  if (confirm(`¿Eliminar todas las ${photos.length} fotos?`)) {
+    photos = [];
+    renderGallery();
+    showNotification("🗑️ Todas las fotos eliminadas");
+  }
+}
+
+// Función para mostrar notificación temporal
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #333;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 10000;
+    animation: slideIn 0.3s;
+  `;
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = "slideOut 0.3s";
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 2000);
+}
+
+// Agregar estilos de animación
+const style = document.createElement("style");
+style.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
 
 // Función para cerrar la cámara
 function closeCamera() {
@@ -196,8 +337,19 @@ function closeCamera() {
 openCameraBtn.addEventListener("click", openCamera);
 takePhotoBtn.addEventListener("click", takePhoto);
 switchCameraBtn.addEventListener("click", switchCamera);
-savePhotoBtn.addEventListener("click", savePhoto);
-retakePhotoBtn.addEventListener("click", retakePhoto);
+clearAllPhotos.addEventListener("click", clearAllPhotosFunc);
+
+// Modal events
+closeModal.addEventListener("click", closePhotoModal);
+savePhotoModal.addEventListener("click", savePhotoFromModal);
+deletePhotoModal.addEventListener("click", deletePhoto);
+
+// Cerrar modal al hacer click fuera de la imagen
+photoModal.addEventListener("click", (e) => {
+  if (e.target === photoModal) {
+    closePhotoModal();
+  }
+});
 
 // Limpiar al cerrar la página
 window.addEventListener("beforeunload", () => {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "camara-pwa-v1";
+const CACHE_NAME = "camara-pwa-v2"; // Cambiar a v2
 const urlsToCache = [
   "./",
   "./index.html",
