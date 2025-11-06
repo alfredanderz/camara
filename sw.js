@@ -1,10 +1,10 @@
 const CACHE_NAME = "camara-pwa-v1";
 const urlsToCache = [
-  "/",
-  "/index.html",
-  "/app.js",
-  "/style.css",
-  "/manifest.json",
+  "./",
+  "./index.html",
+  "./app.js",
+  "./style.css",
+  "./manifest.json",
 ];
 
 // Instalar Service Worker
